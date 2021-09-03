@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+option java_package = "draw.common.messages";
+option java_multiple_files = true;
+
+import 'draw/common.proto';
+
+message ClientMessage {
+  message ConnectMessage {
+    string name = 1;
+    string room_id = 2;
+  }
+
+  message ChooseWordMessage {
+    int32 word_index = 1;
+  }
+
+  message ClearCanvasMessage {}
+
+  message DrawMessage {
+    repeated DrawCommand commands = 1;
+  }
+
+  message ChatMessage {
+    string message = 1;
+  }
+
+  message StartGameMessage {}
+
+  oneof message {
+    ChooseWordMessage choose_word = 1;
+    ClearCanvasMessage clear_canvas = 2;
+    DrawMessage draw = 3;
+    ChatMessage chat_message = 4;
+    StartGameMessage start_game = 5;
+    ConnectMessage connect_message = 6;
+  }
+}

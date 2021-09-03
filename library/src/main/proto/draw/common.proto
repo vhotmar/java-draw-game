@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+option java_package = "draw.common.messages";
+option java_multiple_files = true;
+
+message Color {
+  double red = 1;
+  double green = 2;
+  double blue = 3;
+  double opacity = 4;
+}
+
+message DrawState {
+  Color color = 1;
+  double line_width = 2;
+}
+
+message DrawBeginPath {
+  DrawState state = 1;
+}
+
+message DrawLineTo {
+  double from_x = 4;
+  double from_y = 5;
+  double to_x = 6;
+  double to_y = 7;
+}
+
+message DrawClosePath {
+}
+
+message DrawFill {
+  Color color = 1;
+}
+
+message DrawCommand {
+  oneof command {
+    DrawBeginPath begin_path = 1;
+    DrawLineTo line_to = 2;
+    DrawClosePath close_path = 3;
+    DrawFill fill = 4;
+  }
+}

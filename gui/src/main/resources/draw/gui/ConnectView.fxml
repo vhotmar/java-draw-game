@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<GridPane xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="draw.gui.controllers.ConnectController">
+    <columnConstraints>
+        <ColumnConstraints hgrow="ALWAYS" minWidth="-Infinity"/>
+        <ColumnConstraints minWidth="-Infinity"/>
+        <ColumnConstraints hgrow="ALWAYS" minWidth="-Infinity"/>
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints minHeight="-Infinity" vgrow="ALWAYS"/>
+        <RowConstraints minHeight="-Infinity"/>
+        <RowConstraints minHeight="-Infinity" vgrow="ALWAYS"/>
+    </rowConstraints>
+
+    <GridPane style="-fx-background-color: #ddd" GridPane.columnIndex="1" GridPane.rowIndex="1">
+        <columnConstraints>
+            <ColumnConstraints minWidth="10.0"/>
+            <ColumnConstraints minWidth="-Infinity"/>
+            <ColumnConstraints minWidth="10.0"/>
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints minHeight="10.0"/>
+            <RowConstraints minHeight="-Infinity"/>
+            <RowConstraints minHeight="10.0"/>
+        </rowConstraints>
+
+        <GridPane GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="-Infinity"/>
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints minHeight="-Infinity"/>
+                <RowConstraints minHeight="-Infinity"/>
+                <RowConstraints minHeight="-Infinity"/>
+                <RowConstraints minHeight="-Infinity"/>
+            </rowConstraints>
+
+            <Label text="Your Name:" GridPane.rowIndex="0">
+                <GridPane.margin>
+                    <Insets bottom="5.0"/>
+                </GridPane.margin>
+            </Label>
+
+            <TextField fx:id="nameTextField" GridPane.rowIndex="1" minWidth="200">
+                <GridPane.margin>
+                    <Insets bottom="10.0"/>
+                </GridPane.margin>
+            </TextField>
+
+            <CheckBox fx:id="existingGameCheckBox" GridPane.rowIndex="2" text="Connect to existing game">
+                <GridPane.margin>
+                    <Insets bottom="10.0"/>
+                </GridPane.margin>
+            </CheckBox>
+
+            <Label fx:id="codeLabel" text="Code of existing game:" GridPane.rowIndex="3">
+                <GridPane.margin>
+                    <Insets bottom="5.0"/>
+                </GridPane.margin>
+            </Label>
+
+            <TextField fx:id="codeTextField" GridPane.rowIndex="4" minWidth="200">
+                <GridPane.margin>
+                    <Insets bottom="10.0"/>
+                </GridPane.margin>
+            </TextField>
+
+            <Button fx:id="connectButton" mnemonicParsing="false" text="Connect" GridPane.rowIndex="5"
+                    onAction="#handleConnectClick"/>
+        </GridPane>
+    </GridPane>
+</GridPane>

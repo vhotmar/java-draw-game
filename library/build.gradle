@@ -1,0 +1,9 @@
+plugins {
+    id 'draw.java-library-conventions'
+    id 'com.google.protobuf' version '0.8.16'
+}
+
+dependencies {
+    implementation 'com.google.protobuf:protobuf-java:3.17.3'
+    implementation 'jakarta.platform:jakarta.jakartaee-web-api:9.1.0'
+}

@@ -1,0 +1,8 @@
+version: '3.7'
+services:
+  hazelcast-member:
+    image: hazelcast/hazelcast:4.2.2
+    deploy:
+      replicas: 1
+    ports:
+      - 5701:5701

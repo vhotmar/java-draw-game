@@ -1,0 +1,101 @@
+syntax = "proto3";
+
+option java_package = "draw.common.messages";
+option java_multiple_files = true;
+
+import 'draw/common.proto';
+
+message ServerMessage {
+  message ChooseWordMessage {
+    int32 player_id = 1;
+    repeated string words = 2;
+  }
+
+  message ClearCanvasMessage {}
+
+  message ConnectedMessage {}
+
+  message CurrentWordUpdateMessage {
+    string word = 1;
+  }
+
+  message DisconnectedMessage {}
+
+  message DrawMessage {
+    repeated DrawCommand commands = 1;
+  }
+
+  message KickedMessage {}
+
+  message PlayerConnectedMessage {
+    int32 player_id = 1;
+    string player_name = 2;
+    int32 player_score = 3;
+    bool guessed_word = 4;
+  }
+
+  message PlayerDisconnectedMessage {
+    int32 player_id = 1;
+  }
+
+  message PlayerKickedMessage {
+    int32 player_id = 1;
+  }
+
+  message PlayerGuessedMessage {
+    int32 player_id = 1;
+  }
+
+
+  message WordRevealMessage {
+    enum RevealReason {
+      EVERYONE_GUESSED = 0;
+      TIMEOUT = 1;
+    }
+
+    message PlayerScore {
+      int32 player_id = 1;
+      int32 player_score = 2;
+    }
+
+    RevealReason reason = 1;
+    string word = 2;
+    repeated PlayerScore scores = 3;
+  }
+
+  message ChatMessage {
+    int32 player_id = 1;
+    string message = 2;
+  }
+
+  message ErrorMessage {
+    string message = 1;
+  }
+
+  message ShowLobbyMessage {
+    string room_id = 1;
+  }
+
+  message GameStartedMessage {}
+
+  message UpdateDrawingPlayerMessage {}
+
+  oneof message {
+    ChooseWordMessage choose_word = 1;
+    ClearCanvasMessage clear_canvas = 2;
+    ConnectedMessage connected = 3;
+    CurrentWordUpdateMessage current_word_update = 4;
+    DisconnectedMessage disconnected = 5;
+    KickedMessage kicked = 6;
+    PlayerConnectedMessage player_connected = 7;
+    PlayerDisconnectedMessage player_disconnected = 8;
+    PlayerKickedMessage player_kicked = 9;
+    PlayerGuessedMessage player_guessed = 10;
+    WordRevealMessage word_reveal = 11;
+    ChatMessage chat_message = 12;
+    ShowLobbyMessage show_lobby = 13;
+    GameStartedMessage game_started = 14;
+    UpdateDrawingPlayerMessage update_player_drawing = 15;
+    ErrorMessage error_message = 16;
+  }
+}

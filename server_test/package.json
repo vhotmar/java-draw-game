@@ -1,0 +1,30 @@
+{
+  "name": "server_test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "ts-node ./scripts/build.ts",
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/glob": "^7.1.4",
+    "@types/websocket": "^1.0.4",
+    "glob": "^7.1.7",
+    "protobufjs": "^6.11.2",
+    "typescript": "^4.4.2",
+    "websocket": "^1.0.34"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.15.4",
+    "@babel/preset-env": "^7.15.4",
+    "@babel/preset-typescript": "^7.15.0",
+    "@types/jest": "^27.0.1",
+    "babel-jest": "^27.1.0",
+    "jest": "^27.1.0",
+    "ts-node": "^10.2.1"
+  }
+}

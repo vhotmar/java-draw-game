@@ -1,0 +1,17 @@
+plugins {
+    id 'draw.java-common-conventions'
+    id 'war'
+    id "org.gretty" version "4.0.0"
+}
+
+dependencies {
+    implementation 'jakarta.platform:jakarta.jakartaee-web-api:9.1.0'
+    implementation 'com.google.protobuf:protobuf-java:3.17.3'
+    implementation 'com.hazelcast:hazelcast-all:4.2.2'
+
+    implementation project(':library')
+}
+
+war {
+    archiveName 'draw_server.war'
+}
