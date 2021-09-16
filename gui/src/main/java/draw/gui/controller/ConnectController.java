@@ -96,7 +96,7 @@ public class ConnectController implements Controller {
     } catch (DeploymentException e) {
       logger.error("Error while parsing URI", e);
 
-      showErrorAndWait("connect_screen.invalid_server_uri_message");
+      showErrorAndWait("connect_screen.error_while_connecting_message");
       view.getLoadingOverlay().hide();
 
       return;
