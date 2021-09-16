@@ -7,43 +7,33 @@ import 'draw/common.proto';
 
 message ServerMessage {
   message ChooseWordMessage {
-    int32 player_id = 1;
+    string player_id = 1;
     repeated string words = 2;
   }
 
   message ClearCanvasMessage {}
 
-  message ConnectedMessage {}
-
   message CurrentWordUpdateMessage {
     string word = 1;
   }
-
-  message DisconnectedMessage {}
 
   message DrawMessage {
     repeated DrawCommand commands = 1;
   }
 
-  message KickedMessage {}
-
   message PlayerConnectedMessage {
-    int32 player_id = 1;
+    string player_id = 1;
     string player_name = 2;
     int32 player_score = 3;
     bool guessed_word = 4;
   }
 
   message PlayerDisconnectedMessage {
-    int32 player_id = 1;
-  }
-
-  message PlayerKickedMessage {
-    int32 player_id = 1;
+    string player_id = 1;
   }
 
   message PlayerGuessedMessage {
-    int32 player_id = 1;
+    string player_id = 1;
   }
 
 
@@ -51,10 +41,12 @@ message ServerMessage {
     enum RevealReason {
       EVERYONE_GUESSED = 0;
       TIMEOUT = 1;
+      NOONE_LEFT = 2;
+      DRAWER_LEFT = 3;
     }
 
     message PlayerScore {
-      int32 player_id = 1;
+      string player_id = 1;
       int32 player_score = 2;
     }
 
@@ -64,7 +56,7 @@ message ServerMessage {
   }
 
   message ChatMessage {
-    int32 player_id = 1;
+    string player_id = 1;
     string message = 2;
   }
 
@@ -72,30 +64,50 @@ message ServerMessage {
     string message = 1;
   }
 
-  message ShowLobbyMessage {
+  message ShowRoomMessage {
+    message Player {
+      string player_id = 1;
+      string player_name = 2;
+      int32 player_score = 3;
+      bool guessed_word = 4;
+    }
+
     string room_id = 1;
+    string client_id = 2;
+    bool in_game = 3;
+    repeated DrawCommand draw_commands = 4;
+    repeated Player players = 5;
+    string owner_id = 6;
+    string drawing_id = 7;
+  }
+
+  message LobbyOwnerChanged {
+    string new_owner_id = 1;
   }
 
   message GameStartedMessage {}
 
-  message UpdateDrawingPlayerMessage {}
+  message GameEndMessage {}
+
+  message UpdateDrawingPlayerMessage {
+    string drawing_id = 1;
+  }
 
   oneof message {
     ChooseWordMessage choose_word = 1;
     ClearCanvasMessage clear_canvas = 2;
-    ConnectedMessage connected = 3;
     CurrentWordUpdateMessage current_word_update = 4;
-    DisconnectedMessage disconnected = 5;
-    KickedMessage kicked = 6;
     PlayerConnectedMessage player_connected = 7;
     PlayerDisconnectedMessage player_disconnected = 8;
-    PlayerKickedMessage player_kicked = 9;
     PlayerGuessedMessage player_guessed = 10;
     WordRevealMessage word_reveal = 11;
     ChatMessage chat_message = 12;
-    ShowLobbyMessage show_lobby = 13;
     GameStartedMessage game_started = 14;
     UpdateDrawingPlayerMessage update_player_drawing = 15;
     ErrorMessage error_message = 16;
+    ShowRoomMessage show_room = 17;
+    LobbyOwnerChanged lobby_owner_change = 18;
+    DrawMessage draw_message = 19;
+    GameEndMessage game_end = 20;
   }
 }

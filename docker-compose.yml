@@ -1,8 +1,16 @@
 version: '3.7'
 services:
   hazelcast-member:
-    image: hazelcast/hazelcast:4.2.2
+    image: hazelcast/hazelcast:5.0-SNAPSHOT
     deploy:
       replicas: 1
     ports:
-      - 5701:5701
+      - "5701-5703:5701"
+    environment:
+      CLASSPATH: "/opt/hazelcast/ext/"
+    volumes:
+      - ./library/build/classes/java/main:/opt/hazelcast/ext/
+#  management-center:
+#    image: hazelcast/management-center:5.0-BETA-2
+#    ports:
+#      - '8090:8080'

@@ -30,7 +30,9 @@ public class LoadingOverlaySkin extends SkinBase<LoadingOverlay> {
     super(control);
 
     backgroundPane = new StackPane();
-    backgroundPane.setBackground(new Background(new BackgroundFill(new Color(0, 0, 0, 0.4), CornerRadii.EMPTY, Insets.EMPTY)));
+    backgroundPane.setBackground(
+        new Background(
+            new BackgroundFill(new Color(0, 0, 0, 0.4), CornerRadii.EMPTY, Insets.EMPTY)));
 
     progressIndicator = new ProgressIndicator();
 
@@ -84,7 +86,7 @@ public class LoadingOverlaySkin extends SkinBase<LoadingOverlay> {
   public final ObjectProperty<Duration> durationProperty() {
     if (duration == null) {
       duration =
-          new StyleableObjectProperty<Duration>(Duration.millis(200)) {
+          new StyleableObjectProperty<>(Duration.millis(200)) {
             @Override
             public Object getBean() {
               return LoadingOverlaySkin.this;

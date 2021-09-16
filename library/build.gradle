@@ -6,4 +6,5 @@ plugins {
 dependencies {
     implementation 'com.google.protobuf:protobuf-java:3.17.3'
     implementation 'jakarta.platform:jakarta.jakartaee-web-api:9.1.0'
+    implementation 'com.hazelcast:hazelcast-all:4.2.2'
 }
