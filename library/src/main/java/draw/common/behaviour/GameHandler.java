@@ -1,10 +1,10 @@
 package draw.common.behaviour;
 
 import draw.common.behaviour.model.Room;
-import draw.common.messages.ClientMessage;
-import draw.common.messages.ServerMessage;
 import draw.common.behaviour.services.ClientService;
 import draw.common.behaviour.services.RoomService;
+import draw.common.messages.ClientMessage;
+import draw.common.messages.ServerMessage;
 
 public class GameHandler extends ClientMessageHandler {
   private final ClientService clientService;
@@ -18,7 +18,21 @@ public class GameHandler extends ClientMessageHandler {
 
   @Override
   protected void handleChatMessage(ClientMessage.ChatMessage message) {
-    // TODO: whooo
+    Room room = roomService.getRoom();
+    if (room.getRoomState() != Room.RoomState.GAME || room.getGameState() != Room.GameState.DRAWING) {
+      return;
+    }
+
+    if (room.getCurrentWord().equals(message.getMessage())) {
+      roomService.playerGuessed(clientService.getClientId());
+
+      ServerMessage.WordRevealMessage.RevealReason reason = roomService.shouldRoundEnd();
+
+      if (reason != null) {
+        roomService.endCurrentRound(reason);
+        roomService.initiateNextRound();
+      }
+    }
   }
 
   @Override
@@ -30,7 +44,7 @@ public class GameHandler extends ClientMessageHandler {
   protected void handleChooseWordMessage(ClientMessage.ChooseWordMessage chooseWord) {
     Room room = roomService.getRoom();
 
-    if (room.getRoomState() != Room.RoomState.GAME && room.getGameState() != Room.GameState.WORD_CHOOSE) {
+    if (room.getRoomState() != Room.RoomState.GAME || room.getGameState() != Room.GameState.WORD_CHOOSE) {
       clientService.sendError("Can't choose, word because the game is in invalid state");
 
       return;
@@ -55,7 +69,7 @@ public class GameHandler extends ClientMessageHandler {
   protected void handleDrawMessage(ClientMessage.DrawMessage draw) {
     Room room = roomService.getRoom();
 
-    if (room.getRoomState() != Room.RoomState.GAME && room.getGameState() != Room.GameState.DRAWING) {
+    if (room.getRoomState() != Room.RoomState.GAME || room.getGameState() != Room.GameState.DRAWING) {
       clientService.sendError("Can't draw, because the game is in invalid state");
 
       return;

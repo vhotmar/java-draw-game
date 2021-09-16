@@ -27,12 +27,9 @@ public class LobbyController implements Controller {
       new DrawClient.MessageHandler() {
         @Override
         public void handleMessage(ServerMessage message) {
-          Platform.runLater(
-              () -> {
-                if (message.hasGameStarted()) {
-                  container.nextScreen(new GameController(container, resources, clientService));
-                }
-              });
+          if (message.hasGameStarted()) {
+            container.nextScreen(new GameController(container, resources, clientService));
+          }
         }
       };
 
@@ -60,9 +57,7 @@ public class LobbyController implements Controller {
               Clipboard.getSystemClipboard().setContent(content);
             });
 
-    view.getStartGameButton()
-        .setOnAction(
-            (e) -> clientService.startGame());
+    view.getStartGameButton().setOnAction((e) -> clientService.startGame());
   }
 
   @Override

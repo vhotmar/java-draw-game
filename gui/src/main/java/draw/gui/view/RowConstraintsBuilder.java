@@ -32,4 +32,10 @@ public class RowConstraintsBuilder {
   public RowConstraints build() {
     return rowConstraints;
   }
+
+  public RowConstraintsBuilder minHeightUseComputedSize() {
+    rowConstraints.setMinHeight(Region.USE_COMPUTED_SIZE);
+
+    return this;
+  }
 }

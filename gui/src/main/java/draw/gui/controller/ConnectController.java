@@ -116,20 +116,18 @@ public class ConnectController implements Controller {
           new ClientService.ConnectHandler() {
             @Override
             public void handleShowRoom(ServerMessage.ShowRoomMessage showRoom) {
-              Platform.runLater(
-                  () -> {
-                    container.nextScreen(new LobbyController(container, resources, service));
-                    view.getLoadingOverlay().hide();
-                  });
+              if (showRoom.getInGame()) {
+                container.nextScreen(new GameController(container, resources, service));
+              } else {
+                container.nextScreen(new LobbyController(container, resources, service));
+              }
+              view.getLoadingOverlay().hide();
             }
 
             @Override
             public void handleError(ServerMessage.ErrorMessage errorMessage) {
-              Platform.runLater(
-                  () -> {
-                    showErrorAndWait("connect_screen.server_returned_error");
-                    view.getLoadingOverlay().hide();
-                  });
+              showErrorAndWait("connect_screen.server_returned_error");
+              view.getLoadingOverlay().hide();
             }
           });
     } catch (IOException e) {

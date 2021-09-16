@@ -5,6 +5,7 @@ import draw.common.ServerMessageDecoder;
 import draw.common.messages.ClientMessage;
 import draw.common.messages.ServerMessage;
 import jakarta.websocket.*;
+import javafx.application.Platform;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -51,7 +52,9 @@ public class DrawClient {
       logger.trace("Server sent a message {}", message);
     }
 
-    messageHandlers.forEach(handler -> handler.handleMessage(message));
+    Platform.runLater(() -> {
+      messageHandlers.forEach(handler -> handler.handleMessage(message));
+    });
   }
 
   @OnClose

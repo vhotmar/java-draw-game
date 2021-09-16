@@ -2,9 +2,7 @@ package draw.gui.model;
 
 import draw.common.messages.ServerMessage;
 import draw.gui.DrawClient;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -60,132 +58,123 @@ public class StateManager {
     @Override
     public void handleMessage(ServerMessage message) {
 
-      Platform.runLater(
-          () -> {
-            if (message.hasShowRoom()) {
-              ServerMessage.ShowRoomMessage showRoomMessage = message.getShowRoom();
-              state.setClientId(showRoomMessage.getClientId());
-              state.setOwnerId(showRoomMessage.getOwnerId());
+      if (message.hasShowRoom()) {
+        ServerMessage.ShowRoomMessage showRoomMessage = message.getShowRoom();
+        state.setClientId(showRoomMessage.getClientId());
+        state.setOwnerId(showRoomMessage.getOwnerId());
 
-              state.setDrawId(showRoomMessage.getDrawingId());
-              state.getDrawCommands().clear();
-              state.getDrawCommands().addAll(showRoomMessage.getDrawCommandsList());
+        state.setDrawId(showRoomMessage.getDrawingId());
+        state.getDrawCommands().clear();
+        state.getDrawCommands().addAll(showRoomMessage.getDrawCommandsList());
 
-              state.getClients().clear();
-              state
-                  .getClients()
-                  .putAll(
-                      showRoomMessage.getPlayersList().stream()
-                          .map(
-                              player ->
-                                  new ClientInfo(
-                                      player.getPlayerId(),
-                                      player.getPlayerName(),
-                                      player.getPlayerScore(),
-                                      player.getGuessedWord()))
-                          .collect(Collectors.toMap(ClientInfo::getId, Function.identity())));
-              state
-                  .getClients()
-                  .put(
-                      showRoomMessage.getClientId(),
-                      new ClientInfo(showRoomMessage.getClientId(), state.getName(), 0, false));
+        state.getClients().clear();
+        state
+            .getClients()
+            .putAll(
+                showRoomMessage.getPlayersList().stream()
+                    .map(
+                        player ->
+                            new ClientInfo(
+                                player.getPlayerId(),
+                                player.getPlayerName(),
+                                player.getPlayerScore(),
+                                player.getGuessedWord()))
+                    .collect(Collectors.toMap(ClientInfo::getId, Function.identity())));
+        state
+            .getClients()
+            .put(
+                showRoomMessage.getClientId(),
+                new ClientInfo(showRoomMessage.getClientId(), state.getName(), 0, false));
 
-              state.setRoomId(showRoomMessage.getRoomId());
-              state.setInGame(showRoomMessage.getInGame());
-            } else if (message.hasDrawMessage()) {
-              ServerMessage.DrawMessage drawMessage = message.getDrawMessage();
+        state.setRoomId(showRoomMessage.getRoomId());
+        state.setInGame(showRoomMessage.getInGame());
+      } else if (message.hasDrawMessage()) {
+        ServerMessage.DrawMessage drawMessage = message.getDrawMessage();
 
-              state.getDrawCommands().addAll(drawMessage.getCommandsList());
-            } else if (message.hasClearCanvas()) {
-              state.getDrawCommands().clear();
-            } else if (message.hasCurrentWordUpdate()) {
-              ServerMessage.CurrentWordUpdateMessage currentWordUpdate =
-                  message.getCurrentWordUpdate();
+        state.getDrawCommands().addAll(drawMessage.getCommandsList());
+      } else if (message.hasClearCanvas()) {
+        state.getDrawCommands().clear();
+      } else if (message.hasCurrentWordUpdate()) {
+        ServerMessage.CurrentWordUpdateMessage currentWordUpdate = message.getCurrentWordUpdate();
 
-              state.setCurrentWord(currentWordUpdate.getWord());
-            } else if (message.hasPlayerConnected()) {
-              ServerMessage.PlayerConnectedMessage playerConnectedMessage =
-                  message.getPlayerConnected();
+        state.setCurrentWord(currentWordUpdate.getWord());
+      } else if (message.hasPlayerConnected()) {
+        ServerMessage.PlayerConnectedMessage playerConnectedMessage = message.getPlayerConnected();
 
-              Map<String, ClientInfo> clients = state.getClients();
+        Map<String, ClientInfo> clients = state.getClients();
 
-              ClientInfo info =
-                  clients.computeIfAbsent(
-                      playerConnectedMessage.getPlayerId(), k -> new ClientInfo());
+        ClientInfo info =
+            clients.computeIfAbsent(playerConnectedMessage.getPlayerId(), k -> new ClientInfo());
 
-              info.setId(playerConnectedMessage.getPlayerId());
-              info.setName(playerConnectedMessage.getPlayerName());
-              info.setScore(playerConnectedMessage.getPlayerScore());
-              info.setGuessed(playerConnectedMessage.getGuessedWord());
+        info.setId(playerConnectedMessage.getPlayerId());
+        info.setName(playerConnectedMessage.getPlayerName());
+        info.setScore(playerConnectedMessage.getPlayerScore());
+        info.setGuessed(playerConnectedMessage.getGuessedWord());
 
-              logger.trace("Should update players... hmmmm");
-            } else if (message.hasPlayerDisconnected()) {
-              ServerMessage.PlayerDisconnectedMessage playerDisconnected =
-                  message.getPlayerDisconnected();
+        logger.trace("Should update players... hmmmm");
+      } else if (message.hasPlayerDisconnected()) {
+        ServerMessage.PlayerDisconnectedMessage playerDisconnected =
+            message.getPlayerDisconnected();
 
-              ClientInfo info = state.getClient(playerDisconnected.getPlayerId());
+        ClientInfo info = state.getClient(playerDisconnected.getPlayerId());
 
-              if (info == null) {
-                logger.warn("Player is missing");
-                return;
-              }
+        if (info == null) {
+          logger.warn("Player is missing");
+          return;
+        }
 
-              info.setConnected(false);
-            } else if (message.hasPlayerGuessed()) {
-              ServerMessage.PlayerGuessedMessage playerGuessed = message.getPlayerGuessed();
+        info.setConnected(false);
+      } else if (message.hasPlayerGuessed()) {
+        ServerMessage.PlayerGuessedMessage playerGuessed = message.getPlayerGuessed();
 
-              Map<String, ClientInfo> clients = state.getClients();
+        Map<String, ClientInfo> clients = state.getClients();
 
-              ClientInfo info = clients.get(playerGuessed.getPlayerId());
+        ClientInfo info = clients.get(playerGuessed.getPlayerId());
 
-              if (info == null) {
-                logger.warn("Player is missing");
-                return;
-              }
+        if (info == null) {
+          logger.warn("Player is missing");
+          return;
+        }
 
-              info.setGuessed(true);
-            } else if (message.hasWordReveal()) {
-              ServerMessage.WordRevealMessage wordReveal = message.getWordReveal();
+        info.setGuessed(true);
+      } else if (message.hasWordReveal()) {
+        ServerMessage.WordRevealMessage wordReveal = message.getWordReveal();
 
-              Map<String, ClientInfo> clients = state.getClients();
+        Map<String, ClientInfo> clients = state.getClients();
 
-              state.setCurrentWord(wordReveal.getWord());
+        state.setCurrentWord(wordReveal.getWord());
 
-              wordReveal
-                  .getScoresList()
-                  .forEach(
-                      score -> {
-                        ClientInfo info = clients.get(score.getPlayerId());
+        wordReveal
+            .getScoresList()
+            .forEach(
+                score -> {
+                  ClientInfo info = clients.get(score.getPlayerId());
 
-                        if (info == null) {
-                          // TODO: log error
-                          return;
-                        }
+                  if (info == null) {
+                    // TODO: log error
+                    return;
+                  }
 
-                        info.setScore(score.getPlayerScore());
-                      });
-            } else if (message.hasGameStarted()) {
-              // TODO: whhh
-            } else if (message.hasUpdatePlayerDrawing()) {
-              state.setDrawId(message.getUpdatePlayerDrawing().getDrawingId());
-            } else if (message.hasLobbyOwnerChange()) {
-              state.setOwnerId(message.getLobbyOwnerChange().getNewOwnerId());
-            }
-          });
+                  info.setScore(score.getPlayerScore());
+                });
+      } else if (message.hasGameStarted()) {
+        // TODO: whhh
+      } else if (message.hasUpdatePlayerDrawing()) {
+        state.setDrawId(message.getUpdatePlayerDrawing().getDrawingId());
+      } else if (message.hasLobbyOwnerChange()) {
+        state.setOwnerId(message.getLobbyOwnerChange().getNewOwnerId());
+      }
     }
   }
 
   private class ClientsMapToListChangeListener implements MapChangeListener<String, ClientInfo> {
     @Override
     public void onChanged(Change<? extends String, ? extends ClientInfo> change) {
-      logger.trace("Change detected, right? {}", change);
-
       if (change.wasRemoved()) {
         clientInfos.remove(change.getValueRemoved());
       }
 
       if (change.wasAdded()) {
-        logger.trace("ADDED");
         clientInfos.add(change.getValueAdded());
       }
     }

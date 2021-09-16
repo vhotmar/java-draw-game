@@ -1,10 +1,8 @@
 package draw.common.behaviour.transitions;
 
 import com.hazelcast.map.EntryProcessor;
-import draw.common.behaviour.model.Player;
 import draw.common.behaviour.model.Room;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class ChooseWordProcessor implements EntryProcessor<String, Room, Room> {

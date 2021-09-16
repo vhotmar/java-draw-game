@@ -1,9 +1,12 @@
 package draw.gui.view;
 
+import draw.common.messages.ServerMessage;
 import draw.gui.components.DrawCanvas;
 import draw.gui.components.chat.ChatView;
 import draw.gui.components.score.ScoreView;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -29,6 +32,7 @@ public class GameView {
   private final Label playerNameLabel;
   private final HBox anotherPlayerIsChoosingWordRoot;
   private final Label currentWordLabel;
+  private final GridPane overlayInnerBox;
 
   private Consumer<Integer> wordSelectedHandler;
 
@@ -37,6 +41,8 @@ public class GameView {
 
     layoutRoot = createLayoutRoot();
     overlayRoot = createOverlayRoot();
+    overlayInnerBox = createOverlayInnerBox();
+    overlayRoot.add(overlayInnerBox, 1, 1);
 
     chatView = new ChatView();
     chatView.setPrefWidth(150);
@@ -48,18 +54,23 @@ public class GameView {
     canvasView.setHeight(500);
 
     currentWordLabel = new Label();
+    GridPane.setHalignment(currentWordLabel, HPos.CENTER);
+    GridPane.setValignment(currentWordLabel, VPos.CENTER);
 
     layoutRoot.add(chatView, 0, 0, 1, 3);
     layoutRoot.add(currentWordLabel, 1, 0);
     layoutRoot.add(canvasView, 1, 1, 1, 2);
     layoutRoot.add(scoreView, 2, 0, 1, 3);
 
-    root.getChildren().add(layoutRoot);
+    root.getChildren().addAll(layoutRoot, overlayRoot);
+
+    hideOverlay();
 
     wordButtonsGroup = new HBox();
     wordButtonsGroup.setSpacing(5);
 
     wordButtonsRoot = new VBox();
+    wordButtonsRoot.setSpacing(5);
     chooseWordLabel = new Label(resources.getString("game_screen.choose_word"));
 
     wordButtonsRoot.getChildren().addAll(chooseWordLabel, wordButtonsGroup);
@@ -104,10 +115,11 @@ public class GameView {
   }
 
   private void showOverlayWith(Node node) {
-    overlayRoot.getChildren().clear();
-    overlayRoot.add(node, 1, 1);
+    overlayInnerBox.getChildren().clear();
+    overlayInnerBox.add(node, 1, 1);
 
-    root.getChildren().add(overlayRoot);
+    overlayRoot.setVisible(true);
+    overlayRoot.setManaged(true);
   }
 
   private void buttonSelected(int currentIndex) {
@@ -117,7 +129,8 @@ public class GameView {
   }
 
   public void hideOverlay() {
-    root.getChildren().remove(overlayRoot);
+    overlayRoot.setVisible(false);
+    overlayRoot.setManaged(false);
   }
 
   private GridPane createLayoutRoot() {
@@ -146,8 +159,6 @@ public class GameView {
         new Background(
             new BackgroundFill(new Color(0, 0, 0, 0.4), CornerRadii.EMPTY, Insets.EMPTY)));
 
-    gridPane.setGridLinesVisible(true);
-
     gridPane
         .getColumnConstraints()
         .addAll(
@@ -160,6 +171,29 @@ public class GameView {
             new RowConstraintsBuilder().setVgrow(Priority.ALWAYS).build(),
             new RowConstraintsBuilder().setVgrow(Priority.SOMETIMES).build(),
             new RowConstraintsBuilder().setVgrow(Priority.ALWAYS).build());
+
+    return gridPane;
+  }
+
+  private GridPane createOverlayInnerBox() {
+    GridPane gridPane = new GridPane();
+
+    gridPane.setBackground(
+        new Background(
+            new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
+
+    gridPane
+        .getColumnConstraints()
+        .addAll(
+            new ColumnConstraintsBuilder().setMinWidth(10).setHgrow(Priority.SOMETIMES).build(),
+            new ColumnConstraintsBuilder().setMinWidth(100).setHgrow(Priority.ALWAYS).build(),
+            new ColumnConstraintsBuilder().setMinWidth(10).setHgrow(Priority.SOMETIMES).build());
+    gridPane
+        .getRowConstraints()
+        .addAll(
+            new RowConstraintsBuilder().setMinHeight(10).setVgrow(Priority.SOMETIMES).build(),
+            new RowConstraintsBuilder().setMinHeight(100).setVgrow(Priority.ALWAYS).build(),
+            new RowConstraintsBuilder().setMinHeight(10).setVgrow(Priority.SOMETIMES).build());
 
     return gridPane;
   }
@@ -182,5 +216,9 @@ public class GameView {
 
   public Label getCurrentWordLabel() {
     return currentWordLabel;
+  }
+
+  public void showWordReveal(String word, ServerMessage.WordRevealMessage.RevealReason reason) {
+
   }
 }

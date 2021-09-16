@@ -66,21 +66,20 @@ public class RoomService {
     }
 
     if (result.getRoom().getRoomState() == Room.RoomState.GAME) {
+      ServerMessage.WordRevealMessage.RevealReason reason = shouldRoundEnd();
 
-      if (result.getRoom().getPlayers().size() == 1) {
-        endCurrentRound(ServerMessage.WordRevealMessage.RevealReason.NOONE_LEFT);
+      if (reason == ServerMessage.WordRevealMessage.RevealReason.NOONE_LEFT) {
+        endCurrentRound(reason);
+
+        rooms.executeOnKey(roomId, new EndGameProcessor());
 
         sendEveryoneMessage(
             ServerMessage.newBuilder()
                 .setGameEnd(ServerMessage.GameEndMessage.newBuilder().build())
                 .build());
-
-        rooms.executeOnKey(roomId, new EndGameProcessor());
-      } else {
-        if (result.getRoom().getDrawingId().equals(client.getId())) {
-          endCurrentRound(ServerMessage.WordRevealMessage.RevealReason.DRAWER_LEFT);
-          initiateNextRound();
-        }
+      } else if (reason != null) {
+        endCurrentRound(reason);
+        initiateNextRound();
       }
     }
 
@@ -151,7 +150,8 @@ public class RoomService {
   public void initiateNextRound() {
     Room room = getRoom();
 
-    System.out.println("message: " + room.getGameState());
+    System.out.println(
+        String.format("trying to initiate next round (gameState = {})", room.getRoomState()));
 
     if (room.getGameState() != Room.GameState.NONE && room.getGameState() != Room.GameState.SCORE)
       return;
@@ -195,13 +195,13 @@ public class RoomService {
   }
 
   public void endCurrentRound(ServerMessage.WordRevealMessage.RevealReason reason) {
-    Room room = rooms.executeOnKey(roomId, new EndRoundProcessor());
+    EndRoundProcessor.Result result = rooms.executeOnKey(roomId, new EndRoundProcessor());
 
     sendEveryoneMessage(
         ServerMessage.newBuilder()
             .setWordReveal(
                 ServerMessage.WordRevealMessage.newBuilder()
-                    .setWord(room.getCurrentWord())
+                    .setWord(result.getWord())
                     .setReason(reason)
                     .build())
             .build());
@@ -241,6 +241,33 @@ public class RoomService {
 
     hazelcastInstance
         .getScheduledExecutorService("scheduledExecutorService")
-        .schedule(new EndRoundTask(room.getId(), room.getGameId()), 10, TimeUnit.SECONDS);
+        .schedule(new EndRoundTask(room.getId(), room.getGameId()), 60, TimeUnit.SECONDS);
+  }
+
+  public void playerGuessed(String clientId) {
+    rooms.executeOnKey(roomId, new PlayerGuessedProcessor(clientId));
+  }
+
+  public ServerMessage.WordRevealMessage.RevealReason shouldRoundEnd() {
+    Room room = getRoom();
+
+    if (room.getRoomState() != Room.RoomState.GAME || room.getGameState() != Room.GameState.DRAWING)
+      return null;
+
+    if (room.getPlayers().size() <= 1) {
+      return ServerMessage.WordRevealMessage.RevealReason.NOONE_LEFT;
+    }
+
+    if (!room.getPlayers().containsKey(room.getDrawingId())) {
+      return ServerMessage.WordRevealMessage.RevealReason.DRAWER_LEFT;
+    }
+
+    if (room.getPlayers().entrySet().stream()
+        .filter(entry -> !entry.getValue().getId().equals(room.getDrawingId()))
+        .allMatch(entry -> entry.getValue().hasGuessed())) {
+      return ServerMessage.WordRevealMessage.RevealReason.EVERYONE_GUESSED;
+    }
+
+    return null;
   }
 }

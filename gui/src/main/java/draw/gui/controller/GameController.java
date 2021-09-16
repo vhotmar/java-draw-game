@@ -1,5 +1,6 @@
 package draw.gui.controller;
 
+import draw.common.messages.ClientMessage;
 import draw.common.messages.ServerMessage;
 import draw.gui.AppContainer;
 import draw.gui.DrawClient;
@@ -11,7 +12,9 @@ import javafx.scene.Node;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 
 public class GameController implements Controller {
   private static final Logger logger = LogManager.getLogger(GameController.class);
@@ -20,41 +23,13 @@ public class GameController implements Controller {
   private final ChatController chatController;
   private final CanvasController canvasController;
 
-  private GameView view;
+  private final GameView view;
   private final AppContainer container;
   private final ResourceBundle resources;
-  private ClientService clientService;
+  private final ClientService clientService;
 
-  private final DrawClient.MessageHandler messageHandler =
-      (message) -> {
-        Platform.runLater(
-            () -> {
-              if (message.hasChooseWord()) {
-                ServerMessage.ChooseWordMessage chooseWordMessage = message.getChooseWord();
-                State state = clientService.getStateManager().getState();
-
-                if (!chooseWordMessage.getPlayerId().equals(state.getClientId())) {
-                  view.showAnotherPlayerIsChoosingWordOverlay(
-                      state.getClientName(chooseWordMessage.getPlayerId()));
-                  return;
-                }
-
-                view.showWordsOverlay(chooseWordMessage.getWordsList());
-              } else if (message.hasUpdatePlayerDrawing()) {
-                view.hideOverlay();
-              }
-            });
-        // choose word (id, word list) <-
-        // choose word (word index) -> // only the selected user
-        // player drawing (id) <-
-        // current word (word) <-
-        // canvas clear <-
-
-        // draw begins!!
-
-        // player guessed word <- / timeout
-        // lobby reveal
-      };
+  private final DrawClient.MessageHandler messageHandler;
+  private final Consumer<Integer> wordSelectedHandler;
 
   public GameController(
       AppContainer container, ResourceBundle resources, ClientService clientService) {
@@ -67,6 +42,46 @@ public class GameController implements Controller {
     chatController = new ChatController(view.getChatView(), clientService);
     scoreController = new ScoreController(view.getScoreView(), clientService);
     canvasController = new CanvasController(view.getCanvasView(), clientService);
+
+    messageHandler =
+        (message) -> {
+          if (message.hasChooseWord()) {
+            ServerMessage.ChooseWordMessage chooseWordMessage = message.getChooseWord();
+            State state = clientService.getStateManager().getState();
+
+            if (!chooseWordMessage.getPlayerId().equals(state.getClientId())) {
+              view.showAnotherPlayerIsChoosingWordOverlay(
+                  state.getClientName(chooseWordMessage.getPlayerId()));
+              return;
+            }
+
+            view.showWordsOverlay(chooseWordMessage.getWordsList());
+          } else if (message.hasUpdatePlayerDrawing()) {
+            view.hideOverlay();
+          } else if (message.hasWordReveal()) {
+            ServerMessage.WordRevealMessage wordReveal = message.getWordReveal();
+            view.showWordReveal(wordReveal.getWord(), wordReveal.getReason());
+          } else if (message.hasGameEnd()) {
+            container.nextScreen(new LobbyController(container, resources, clientService));
+          }
+        };
+
+    wordSelectedHandler =
+        index -> {
+          try {
+            clientService
+                .getDrawClient()
+                .sendMessage(
+                    ClientMessage.newBuilder()
+                        .setChooseWord(
+                            ClientMessage.ChooseWordMessage.newBuilder()
+                                .setWordIndex(index)
+                                .build())
+                        .build());
+          } catch (IOException e) {
+            logger.error("Could not send wordSelected message", e);
+          }
+        };
   }
 
   @Override
@@ -82,7 +97,11 @@ public class GameController implements Controller {
     scoreController.initialize();
     canvasController.initialize();
 
-    view.getCurrentWordLabel().textProperty().bind(clientService.getStateManager().getState().currentWordProperty());
+    view.getCurrentWordLabel()
+        .textProperty()
+        .bind(clientService.getStateManager().getState().currentWordProperty());
+
+    view.setWordSelectedHandler(wordSelectedHandler);
   }
 
   public void destroy() {
@@ -93,5 +112,7 @@ public class GameController implements Controller {
     canvasController.destroy();
 
     view.getCurrentWordLabel().textProperty().unbind();
+
+    view.setWordSelectedHandler(null);
   }
 }
