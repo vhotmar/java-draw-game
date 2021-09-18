@@ -50,7 +50,7 @@ public class ScoreController {
     List<Item> idsSortedByScore =
         clientService.getStateManager().getConnectedClientInfos().stream()
             .map(info -> new Item(info.getId(), info.getScore()))
-            .sorted(Comparator.comparingInt(a -> a.score))
+            .sorted(Comparator.comparingInt((Item a) -> a.score).reversed())
             .collect(Collectors.toList());
 
     Map<String, Integer> positions = new HashMap<>();

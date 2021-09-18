@@ -40,6 +40,6 @@ public class LobbyHandler extends ClientMessageHandler {
             .setGameStarted(ServerMessage.GameStartedMessage.newBuilder().build())
             .build());
 
-    roomService.initiateNextRound();
+    roomService.initiateNextRoundOrEndGame();
   }
 }

@@ -30,13 +30,9 @@ public class InitiateGameProcessor implements EntryProcessor<String, Room, Room>
 
     entry.setValue(room);
 
-    List<String> playerIds = new ArrayList<>(room.getPlayers().keySet());
-    Collections.sort(playerIds);
-
-    int index = playerIds.indexOf(room.getDrawingId());
-    int nextPlayerIndex = index == -1 ? 0 : (index + 1) % playerIds.size();
-
-    room.setDrawingId(playerIds.get(nextPlayerIndex));
+    if (room.getDrawingIndex() == -1) {
+      room.setDrawingIndex(0);
+    }
 
     return room;
   }

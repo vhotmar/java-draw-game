@@ -16,9 +16,10 @@ public class EndGameProcessor implements EntryProcessor<String, Room, Room> {
 
     room.setRoomState(Room.RoomState.LOBBY);
     room.setGameState(Room.GameState.NONE);
-    room.setDrawingId(null);
+    room.setDrawingIndex(-1);
     room.setCurrentWord(null);
     room.setWordSelection(null);
+    room.setRound(0);
 
     entry.setValue(room);
 

@@ -11,7 +11,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 @ClientEndpoint(
     decoders = {ServerMessageDecoder.class},
@@ -20,7 +20,7 @@ public class DrawClient {
   private static final Logger logger = LogManager.getLogger(DrawClient.class);
 
   private Session session;
-  private LinkedList<MessageHandler> messageHandlers = new LinkedList<>();
+  private final ArrayList<MessageHandler> messageHandlers = new ArrayList<>();
 
   public DrawClient(URI uri) throws DeploymentException, IOException {
     WebSocketContainer container = ContainerProvider.getWebSocketContainer();
@@ -52,9 +52,12 @@ public class DrawClient {
       logger.trace("Server sent a message {}", message);
     }
 
-    Platform.runLater(() -> {
-      messageHandlers.forEach(handler -> handler.handleMessage(message));
-    });
+    Platform.runLater(
+        () -> {
+          synchronized (messageHandlers) {
+            messageHandlers.forEach(handler -> handler.handleMessage(message));
+          }
+        });
   }
 
   @OnClose
@@ -67,11 +70,15 @@ public class DrawClient {
   }
 
   public void addMessageListener(MessageHandler messageHandler) {
-    this.messageHandlers.add(messageHandler);
+    synchronized (messageHandlers) {
+      this.messageHandlers.add(messageHandler);
+    }
   }
 
   public void removeMessageListener(MessageHandler messageHandler) {
-    this.messageHandlers.remove(messageHandler);
+    synchronized (messageHandlers) {
+      this.messageHandlers.remove(messageHandler);
+    }
   }
 
   public interface MessageHandler {

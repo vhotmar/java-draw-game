@@ -5,6 +5,7 @@ import draw.common.behaviour.model.Room;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Objects;
 
 public class LeaveRoomProcessor implements EntryProcessor<String, Room, LeaveRoomProcessor.Result> {
   private final String clientId;
@@ -22,6 +23,7 @@ public class LeaveRoomProcessor implements EntryProcessor<String, Room, LeaveRoo
     String previousOwnerId = room.getOwnerId();
 
     room.getPlayers().remove(clientId);
+    room.getRoundPlan().remove(clientId);
 
     if (room.getPlayers().isEmpty()) {
       room = null;

@@ -30,7 +30,7 @@ public class GameHandler extends ClientMessageHandler {
 
       if (reason != null) {
         roomService.endCurrentRound(reason);
-        roomService.initiateNextRound();
+        roomService.initiateNextRoundOrEndGame();
       }
     }
   }

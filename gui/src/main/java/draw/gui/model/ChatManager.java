@@ -117,6 +117,18 @@ public class ChatManager {
                 new SystemMessageChatItem(
                     "The ownership of the room was given to: \"" + info.getName() + "\"!",
                     Color.ORANGE));
+          } else if (message.hasGameEnd()) {
+            StringBuilder sb = new StringBuilder();
+            stateManager.getState().getClients().forEach((id, client) -> {
+              sb.append(client.getName());
+              sb.append(": ");
+              sb.append(client.getScore());
+              sb.append("\n");
+            });
+
+            chatItems.add(
+                new SystemMessageChatItem("The game ended with following scores:\n" + sb.toString(), Color.GREEN)
+            );
           }
         };
 

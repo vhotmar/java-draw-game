@@ -70,16 +70,10 @@ public class RoomService {
 
       if (reason == ServerMessage.WordRevealMessage.RevealReason.NOONE_LEFT) {
         endCurrentRound(reason);
-
-        rooms.executeOnKey(roomId, new EndGameProcessor());
-
-        sendEveryoneMessage(
-            ServerMessage.newBuilder()
-                .setGameEnd(ServerMessage.GameEndMessage.newBuilder().build())
-                .build());
+        endCurrentGame();
       } else if (reason != null) {
         endCurrentRound(reason);
-        initiateNextRound();
+        initiateNextRoundOrEndGame();
       }
     }
 
@@ -91,6 +85,15 @@ public class RoomService {
                     .build())
             .build(),
         client.getId());
+  }
+
+  private void endCurrentGame() {
+    rooms.executeOnKey(roomId, new EndGameProcessor());
+
+    sendEveryoneMessage(
+        ServerMessage.newBuilder()
+            .setGameEnd(ServerMessage.GameEndMessage.newBuilder().build())
+            .build());
   }
 
   public Room getRoom() {
@@ -147,14 +150,16 @@ public class RoomService {
         byId);
   }
 
-  public void initiateNextRound() {
+  public void initiateNextRoundOrEndGame() {
     Room room = getRoom();
-
-    System.out.println(
-        String.format("trying to initiate next round (gameState = {})", room.getRoomState()));
 
     if (room.getGameState() != Room.GameState.NONE && room.getGameState() != Room.GameState.SCORE)
       return;
+
+    if (room.getRound() > 2) {
+      endCurrentGame();
+      return;
+    }
 
     List<String> words =
         new SecureRandom()
@@ -203,6 +208,15 @@ public class RoomService {
                 ServerMessage.WordRevealMessage.newBuilder()
                     .setWord(result.getWord())
                     .setReason(reason)
+                    .addAllScores(
+                        result.getRoom().getPlayers().values().stream()
+                            .map(
+                                player ->
+                                    ServerMessage.WordRevealMessage.PlayerScore.newBuilder()
+                                        .setPlayerId(player.getId())
+                                        .setPlayerScore(player.getScore())
+                                        .build())
+                            .collect(Collectors.toList()))
                     .build())
             .build());
   }

@@ -41,6 +41,6 @@ public class EndRoundTask implements Runnable, Serializable, HazelcastInstanceAw
     if (room.getRoomState() != Room.RoomState.GAME || room.getGameState() != Room.GameState.DRAWING) return;
 
     roomService.endCurrentRound(ServerMessage.WordRevealMessage.RevealReason.TIMEOUT);
-    roomService.initiateNextRound();
+    roomService.initiateNextRoundOrEndGame();
   }
 }

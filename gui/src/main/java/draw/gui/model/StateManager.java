@@ -158,7 +158,9 @@ public class StateManager {
                   info.setScore(score.getPlayerScore());
                 });
       } else if (message.hasGameStarted()) {
-        // TODO: whhh
+        state.getClients().forEach((id, client) -> {
+          client.setScore(0);
+        });
       } else if (message.hasUpdatePlayerDrawing()) {
         state.setDrawId(message.getUpdatePlayerDrawing().getDrawingId());
       } else if (message.hasLobbyOwnerChange()) {

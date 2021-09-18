@@ -28,6 +28,7 @@ public class JoinRoomProcessor implements EntryProcessor<String, Room, Room> {
     }
 
     room.getPlayers().put(clientId, new Player(clientId));
+    room.getRoundPlan().add(clientId);
 
     entry.setValue(room);
 

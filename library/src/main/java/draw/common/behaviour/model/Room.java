@@ -20,9 +20,11 @@ public class Room implements Serializable {
   private RoomState roomState = RoomState.LOBBY;
   private GameState gameState = GameState.NONE;
   private int gameId = 0;
-  private String drawingId;
+  private int round = 0;
+  private int drawingIndex = -1;
   private String currentWord;
   private List<String> wordSelection;
+  private final List<String> roundPlan = new ArrayList<>();
 
   public enum RoomState {
     LOBBY,
@@ -66,11 +68,17 @@ public class Room implements Serializable {
   }
 
   public String getDrawingId() {
-    return drawingId;
+    return drawingIndex < 0 || drawingIndex >= roundPlan.size()
+        ? null
+        : roundPlan.get(drawingIndex);
   }
 
-  public void setDrawingId(String drawingId) {
-    this.drawingId = drawingId;
+  public int getDrawingIndex() {
+    return drawingIndex;
+  }
+
+  public void setDrawingIndex(int drawingIndex) {
+    this.drawingIndex = drawingIndex;
   }
 
   public List<DrawCommand> getDrawCommands() {
@@ -107,5 +115,17 @@ public class Room implements Serializable {
 
   public void setGameId(int gameId) {
     this.gameId = gameId;
+  }
+
+  public int getRound() {
+    return round;
+  }
+
+  public void setRound(int round) {
+    this.round = round;
+  }
+
+  public List<String> getRoundPlan() {
+    return roundPlan;
   }
 }

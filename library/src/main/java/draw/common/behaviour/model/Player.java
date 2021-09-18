@@ -9,6 +9,7 @@ public class Player implements Serializable {
   private final String id;
   private boolean guessed = false;
   private int score = 0;
+  private int position = 0;
 
   public Player(String id) {
     this.id = id;
@@ -32,6 +33,14 @@ public class Player implements Serializable {
 
   public void setScore(int score) {
     this.score = score;
+  }
+
+  public int getPosition() {
+    return position;
+  }
+
+  public void setPosition(int position) {
+    this.position = position;
   }
 
   @Override
