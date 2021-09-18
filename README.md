@@ -2,6 +2,12 @@
 Simplified clone of skribbl.io
 
 ## Getting started
+You need to have `protoc` installed. How to do that you can find here:
+https://grpc.io/docs/protoc-installation/
+
+You need to have `docker` installed. How to do that you can find here:
+https://docs.docker.com/engine/install/
+
 You need to run `./gradlew build`. Then you need to have Hazelcast member with
 a correct class path running. That can be done via running `docker-compose up -d`.
 
@@ -39,7 +45,8 @@ will be selected automatically.
 
 Now the player has 50 seconds to draw the word and other players to guess.
 After that period, or after everyone has guessed the word, the next player will be
-asked a new word. This process will repeat indefinitely.
+asked a new word. This process will repeat for three rounds (each player should
+draw three times).
 
 ## Middleware extras
 In folder `server_test`, there are simple tests written in javascript, using the
